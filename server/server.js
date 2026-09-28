@@ -15,8 +15,6 @@ const resultRoutes = require('./routes/resultRoutes');
 const feeRoutes = require('./routes/feeRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 
-connectDB();
-
 const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_URL || '*', credentials: true }));
@@ -24,6 +22,16 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+
+// Har request se pehle DB connection ensure karo (serverless ke liye zaroori)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
@@ -38,4 +46,10 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000; if (!process.env.VERCEL) { app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); } module.exports = app;
+const PORT = process.env.PORT || 5000;
+// Vercel apna listener khud deta hai, is liye sirf local par listen karo
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+module.exports = app;
