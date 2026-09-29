@@ -124,6 +124,15 @@ export default function Attendance() {
       </Card>
 
       {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+      
+      {selectedClass && selectedSection && students.length === 0 && (
+  <Card>
+    <p className="text-sm text-navy-500 py-4 text-center">
+      No students found for this class and section. Double-check that students were added with the
+      exact same section name (e.g. "A" vs "a" counts as different).
+    </p>
+  </Card>
+)}
 
       {students.length > 0 && (
         <Card>
